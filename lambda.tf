@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "eu-central-1"
-}
-
 resource "aws_iam_role" "iam_role" {
   name = "ZabbixDemoRole"
   description = "Role for Zabbix Demo Lambda Function"
@@ -101,5 +97,5 @@ PATTERN
 
 resource "aws_cloudwatch_event_target" "target" {
   rule      = "${aws_cloudwatch_event_rule.event_rule.name}"
-  arn       = "${aws_lambda_function.lambda_function.arn}"
+  arn       = "${aws_kinesis_stream.kinesis_stream.arn}"
 }

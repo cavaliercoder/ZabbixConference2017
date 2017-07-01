@@ -1,5 +1,8 @@
+*.backup
 *.dist-info/
+*.lock.info
 *.pyc
+*.tfstate
 *.zip
 lib/
 pyzabbix/
