@@ -1,0 +1,7 @@
+*.dist-info/
+*.pyc
+*.zip
+lib/
+pyzabbix/
+zabbix/
+zabbops/
