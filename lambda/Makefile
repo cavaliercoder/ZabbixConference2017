@@ -11,7 +11,7 @@ all: $(PACKAGES)
 		$(ZABBIX_SOURCES)
 
 check:
-	python -m unittest zabbops.tests
+	python -m unittest tests
 
 clean:
 	rm -v -f $(PACKAGES)
