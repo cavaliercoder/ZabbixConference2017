@@ -1,15 +1,5 @@
 #!/bin/bash
 #
-# disable selinux
-# see: https://support.zabbix.com/browse/ZBX-10542
-#
-cat > /etc/selinux/config <<EOL
-SELINUX=permissive
-SELINUXTYPE=targeted
-EOL
-setenforce Permissive
-
-#
 # install zabbix and mysql
 #
 
