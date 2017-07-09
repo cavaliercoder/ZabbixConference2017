@@ -1,9 +1,3 @@
-#!/bin/bash
-yum install -y httpd lynx
-systemctl enable httpd
-systemctl start httpd
-
-cat > /var/www/html/index.html <<EOL
 <html>
   <head>
     <title>Zabbix Conference 2017</title>
@@ -80,4 +74,3 @@ cat > /var/www/html/index.html <<EOL
     <h1 contenteditable data-heading="Welcome to Zabbix Conference 2017">Welcome to Zabbix Conference 2017</h1>
   </body>
 </html>
-EOL

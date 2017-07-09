@@ -1,6 +1,7 @@
 resource "aws_iam_role" "iam_role" {
-  name = "ZabbixDemoRole"
+  name        = "ZabbixDemoRole"
   description = "Role for Zabbix Demo Lambda Function"
+
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -20,6 +21,7 @@ EOF
 resource "aws_iam_role_policy" "iam_role_policy" {
   name = "ZabbixDemoPolicy"
   role = "${aws_iam_role.iam_role.id}"
+
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -63,7 +65,7 @@ resource "aws_lambda_function" "lambda_function" {
   role             = "${aws_iam_role.iam_role.arn}"
   timeout          = 300
   memory_size      = 512
-  
+
   tags {
     Description = "Update Hosts in Zabbix"
   }

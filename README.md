@@ -8,17 +8,16 @@ You may be interested in my
 
 ## Usage
 
-1. Install required Python modules
+- Package the Lambda Function
 
-       $ make get-deps
+       cd lambda/
+       make get-deps
+       make
 
-2. Package the Lambda Function
+- Provision AWS Infrastructure and upload Lambda Function
 
-       $ make
-
-3. Provision AWS Infrastructure and upload Lambda Function
-
-       $ terraform apply
+       cd terraform/
+       make install
 
 ## License
 

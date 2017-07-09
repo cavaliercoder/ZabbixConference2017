@@ -1,6 +1,4 @@
 #!/bin/bash
-yum update -y
-
 #
 # disable selinux
 # see: https://support.zabbix.com/browse/ZBX-10542
@@ -14,15 +12,34 @@ setenforce Permissive
 #
 # install zabbix and mysql
 #
-rpm -i http://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
+
+rpm -q zabbix-release >/dev/null || \
+    rpm -i http://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
 yum install -y \
     mariadb-server \
     vim-enhanced \
-    zabbix-agent \
-    zabbix-get \
-    zabbix-sender \
     zabbix-server-mysql \
     zabbix-web-mysql
+
+#
+# fix re: https://support.zabbix.com/browse/ZBX-10542
+#
+cat > zabbix_server_fix.te <<MODULE
+module zabbix_server_fix 1.0;
+
+require {
+    type zabbix_t;
+    class process setrlimit;
+}
+
+#============= zabbix_t ==============
+allow zabbix_t self:process setrlimit;
+
+MODULE
+
+checkmodule -m -M zabbix_server_fix.te -o zabbix_server_fix.mod
+semodule_package -m zabbix_server_fix.mod -o zabbix_server_fix.pp
+semodule -i zabbix_server_fix.pp
 
 #
 # configure database
@@ -35,6 +52,13 @@ grant all privileges on zabbix.* to zabbix@localhost identified by 'zabbix';
 EOL
 zcat /usr/share/doc/zabbix-server-mysql-3.2.*/create.sql.gz | \
     mysql -uzabbix -pzabbix zabbix
+
+#
+# enable zabbix host for monitoring
+#
+mysql zabbix <<SQL
+UPDATE hosts SET status = 0 WHERE status = 1;
+SQL
 
 #
 # configure server

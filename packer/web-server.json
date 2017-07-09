@@ -1,0 +1,45 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "CentOS Linux 7 x86_64 HVM EBS *",
+          "root-device-type": "ebs"
+        },
+        "owners": ["679593333241"],
+        "most_recent": true
+      },
+      "instance_type": "t2.micro",
+      "ssh_username": "centos",
+      "ami_name": "Zabbix-Demo-Web-Server {{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": "/usr/bin/sudo /usr/bin/yum update -y"
+    },
+    {
+      "type": "shell",
+      "script": "provisioners/install-motd.sh",
+      "execute_command": "/usr/bin/chmod +x {{ .Path }}; /usr/bin/sudo {{ .Vars }} {{ .Path }}"
+    },
+    {
+      "type": "shell",
+      "script": "./provisioners/install-zabbix-agent.sh",
+      "execute_command": "/usr/bin/chmod +x {{ .Path }}; /usr/bin/sudo {{ .Vars }} {{ .Path }}"
+    },
+    {
+      "type": "file",
+      "source": "files/index.html",
+      "destination": "/tmp/index.html"
+    },
+    {
+      "type": "shell",
+      "script": "./provisioners/install-web-server.sh",
+      "execute_command": "/usr/bin/chmod +x {{ .Path }}; /usr/bin/sudo {{ .Vars }} {{ .Path }}"
+    }
+  ]
+}

@@ -1,27 +1,11 @@
-provider "aws" {
-  region = "ap-southeast-2"
-}
+data "aws_ami" "zabbix_server_ami" {
+  most_recent = true
+  owners      = ["self"]
 
-variable "images" {
-  type    = "map"
-  default = {
-    eu-central-1   = "ami-fa2df395"
-    ap-southeast-2 = "ami-34171d57"
+  filter {
+    name   = "name"
+    values = ["Zabbix-Demo-Server*"]
   }
-}
-
-data "aws_region" "current" {
-  current = true
-}
-
-data "aws_availability_zones" "available" {}
-
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnet_ids" "all" {
-  vpc_id = "${data.aws_vpc.default.id}"
 }
 
 resource "aws_key_pair" "demo_key" {
@@ -30,8 +14,8 @@ resource "aws_key_pair" "demo_key" {
 }
 
 resource "aws_security_group" "security_group" {
-  name        = "allow_access"
-  description = "Allow all inbound SSH and HTTP traffic"
+  name        = "ZabbixDemoAccess"
+  description = "Allow all inbound SSH, HTTP and Zabbix traffic"
 
   ingress {
     from_port   = 22
@@ -47,25 +31,32 @@ resource "aws_security_group" "security_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 10050
+    to_port     = 10051
+    protocol    = "tcp"
+    cidr_blocks = ["172.16.0.0/12"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
 
-resource "aws_instance" "zabbix_server" {
-  ami             = "${var.images["${data.aws_region.current.name}"]}"
-  instance_type   = "t2.micro"
-  key_name        = "${aws_key_pair.demo_key.key_name}"
-  security_groups = ["${aws_security_group.security_group.name}"]
-  user_data       = "${file("userdata-zabbix.sh")}"
-  tags {
-    Name = "ZabbixServer"
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-output "zabbix_server_ip" {
-  value = "${aws_instance.zabbix_server.public_ip}"
+resource "aws_instance" "zabbix_server" {
+  ami             = "${data.aws_ami.zabbix_server_ami.id}"
+  instance_type   = "t2.micro"
+  key_name        = "${aws_key_pair.demo_key.key_name}"
+  security_groups = ["${aws_security_group.security_group.name}"]
+
+  tags {
+    Name = "ZabbixServer"
+  }
 }
