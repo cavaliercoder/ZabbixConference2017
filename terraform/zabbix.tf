@@ -32,10 +32,10 @@ resource "aws_security_group" "security_group" {
   }
 
   ingress {
-    from_port   = 10050
-    to_port     = 10051
-    protocol    = "tcp"
-    cidr_blocks = ["172.16.0.0/12"]
+    from_port = 10050
+    to_port   = 10051
+    protocol  = "tcp"
+    self      = true
   }
 
   egress {

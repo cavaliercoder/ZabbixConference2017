@@ -49,6 +49,18 @@ resource "aws_launch_configuration" "web_conf" {
   key_name        = "${aws_key_pair.demo_key.key_name}"
   security_groups = ["${aws_security_group.security_group.name}"]
 
+  user_data = <<EOF
+#!/bin/bash
+# configure Zabbix Agent
+INSTANCE_ID=$(curl -s http://169.254.169.254/1.0/meta-data/instance-id)
+sed -i \
+  -e "s/^Hostname=.*/Hostname=$${INSTANCE_ID}/" \
+  -e "s/^Server=.*/Server=127.0.0.1,${aws_instance.zabbix_server.private_ip}/" \
+  -e "s/^ServerActive=.*/ServerActive=${aws_instance.zabbix_server.private_ip}/" \
+  /etc/zabbix/zabbix_agentd.conf
+systemctl restart zabbix-agent
+EOF
+
   lifecycle {
     create_before_destroy = true
   }
